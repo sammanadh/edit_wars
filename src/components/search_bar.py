@@ -2,7 +2,7 @@ from dash import html, dcc
 import dash_bootstrap_components as dbc 
 from src.constants import ids
 
-def render(app):
+def render():
     return html.Div(
         id=ids.SEARCH_BAR,
         children=[

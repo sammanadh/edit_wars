@@ -1,6 +1,6 @@
 from dash import dcc, html
 
-def render(app, articles_data) :
+def render(articles_data) :
     return html.Div([
         html.H3("Graphical Comparison of Searched Articles"),
         dcc.Graph(id="comparison-graph", figure = {

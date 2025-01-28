@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 from src.constants import ids
 from src.helpers import format_timestamp_readable
 
-def render(app, articles_data):
+def render(articles_data):
     articles_data_copy = articles_data.copy()
     total_edits = articles_data_copy["Total Edits"]
     total_contributors = articles_data_copy["Number of Contributors"]

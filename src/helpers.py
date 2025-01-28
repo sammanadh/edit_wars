@@ -3,7 +3,7 @@ from src.constants import urls
 import requests
 from datetime import datetime
 
-def get_article_stats(app, article_name):
+def fetch_all_revisions(article_name):
     try:
         url = f"https://en.wikipedia.org/w/api.php"
         params = {
@@ -33,28 +33,29 @@ def get_article_stats(app, article_name):
                 params["rvcontinue"] = data["continue"]["rvcontinue"]
             else:
                 break 
-
-        if not all_revisions:
-            return None 
-
-        # Process revisions
+        
         revisions_df = pd.DataFrame(all_revisions)
-        revisions_df["timestamp"] = pd.to_datetime(revisions_df["timestamp"])
-
-        total_edits = revisions_df.shape[0]
-        contributors = revisions_df["user"].nunique()
-        last_edit = revisions_df["timestamp"].max().strftime("%Y-%m-%d %H:%M:%S")
-
-        return {
-            "Article Name": article_name,
-            "Total Edits": total_edits,
-            "Number of Contributors": contributors,
-            "Last Edit Timestamp": last_edit,
-        }
-
+        return revisions_df
+    
     except Exception as e:
-        print(f"Error fetching data for {article_name}: {e}")
+        print(f"Error fetching revisions for {article_name}: {e}")
         return None
+
+def get_article_stats(article_name):
+    # revisions
+    revisions_df = fetch_all_revisions(article_name)
+    revisions_df["timestamp"] = pd.to_datetime(revisions_df["timestamp"])
+
+    total_edits = revisions_df.shape[0]
+    contributors = revisions_df["user"].nunique()
+    last_edit = revisions_df["timestamp"].max().strftime("%Y-%m-%d %H:%M:%S")
+
+    return {
+        "Article Name": article_name,
+        "Total Edits": total_edits,
+        "Number of Contributors": contributors,
+        "Last Edit Timestamp": last_edit,
+    }
 
 def format_timestamp_readable(iso_timestamp):
     # Parse the ISO timestamp
