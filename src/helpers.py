@@ -3,9 +3,50 @@ from src.constants import urls
 import requests
 from datetime import datetime
 
+API_URL = "https://en.wikipedia.org/w/api.php"
+
+def fetch_contributor_data(username):
+    try:
+        url = API_URL
+        params = {
+            "action": "query",
+            "list": "usercontribs",
+            "ucuser": username,
+            "uclimit": "max",
+            "ucprop": "title|timestamp|ids",
+            "format": "json",
+        }
+
+        contribs = []
+
+        while True:
+            response = requests.get(url, params=params).json()
+            contribs = response["query"]["usercontribs"]
+            if not contribs:
+                break
+            contribs.extend(contribs)
+
+            # Handle pagination
+            if "continue" in response:
+                params["uccontinue"] = response["continue"]["uccontinue"]
+            else:
+                break
+
+        # Convert to DataFrame
+        if not contribs:
+            return None
+
+        df = pd.DataFrame(contribs)
+        df["timestamp"] = pd.to_datetime(df["timestamp"])
+        return df
+
+    except Exception as e:
+        print(f"Error fetching contributor data: {e}")
+        return None
+
 def fetch_all_revisions(article_name):
     try:
-        url = f"https://en.wikipedia.org/w/api.php"
+        url = API_URL
         params = {
             "action": "query",
             "format": "json",
