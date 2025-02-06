@@ -2,7 +2,11 @@ from dash import register_page, html, dcc
 import pandas as pd
 import plotly.express as px
 import dash_bootstrap_components as dbc
+from prophet import Prophet
 from src.helpers import fetch_all_revisions, format_timestamp_readable
+import io
+import base64
+from datetime import datetime
 
 register_page(__name__, path_template="/details/<article_name>")
 
@@ -38,6 +42,35 @@ def layout(article_name=None, **kwargs):
         ]
     )
 
+    df_rev['timestamp'] = pd.to_datetime(df_rev['timestamp'], errors='coerce')
+    # dataframe for making future prediction
+    df_forecast = df_rev.resample('MS', on='timestamp').size().reset_index(name='y')  # 'MS' = Month Start
+    df_forecast.columns = ['ds', 'y']
+
+    # Removing timezone
+    df_forecast['ds'] = df_forecast['ds'].dt.tz_localize(None)
+
+    # Create a model and fit the dataframe
+    model = Prophet()
+    model.fit(df_forecast)
+
+    # todays date
+    today = datetime.today()
+
+    # dataframe for future dates
+    next_thirty_days = pd.date_range(start=today, periods=12, freq='M')
+    future = pd.DataFrame({'ds': next_thirty_days})
+    future_forecast = model.predict(future)
+
+    # Plot to show the forecast
+    forecast_fig = model.plot(future_forecast)
+    axes = forecast_fig.gca()
+    axes.set_xlim([today, future_forecast['ds'].max()]) # so that the plot only shows data from today onwards
+    axes.set_xlabel("Date")
+    axes.set_ylabel("Number of Edits")
+    
+    forecast_fig_base64 = fig_to_base64(forecast_fig)
+
     #  For top contributors table
     top_contributors_arr = get_top_10_contributors(df_rev)
     df_top_contributors = top_contributors_arr.reset_index()
@@ -71,6 +104,11 @@ def layout(article_name=None, **kwargs):
             matrics_table
         ]),
         html.Div([
+            html.H3("Edit Forecast"),
+            # dcc.Graph(figure=forecast_fig)
+            html.Img(src=f"data:image/png;base64,{forecast_fig_base64}"),  # Render Image in Dash
+        ], style={"marginTop": "20px"}),
+        html.Div([
             html.H3("Top Contributors"),
             contributors_table,
         ], style={"marginTop": "20px"}),
@@ -85,3 +123,9 @@ def layout(article_name=None, **kwargs):
     ])
 
     return html.Div()
+
+def fig_to_base64(fig):
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", bbox_inches="tight")
+    # buf.seek()
+    return base64.b64encode(buf.getvalue()).decode()
