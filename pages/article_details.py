@@ -75,6 +75,12 @@ def layout(article_name=None, **kwargs):
     top_contributors_arr = get_top_10_contributors(df_rev)
     df_top_contributors = top_contributors_arr.reset_index()
     df_top_contributors.columns = ["Contributors", "No of Edits"]
+
+    # set the contributor names as links
+    df_top_contributors["Contributors"] = df_top_contributors["Contributors"].apply(
+        lambda name: dcc.Link(name, href=f"/contributor/{name}", refresh=True),
+    )
+
     contributors_table = dbc.Table.from_dataframe(
         df_top_contributors
     )

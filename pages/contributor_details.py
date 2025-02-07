@@ -7,62 +7,17 @@ import requests
 from src.helpers import fetch_contributor_data
 from src.constants import ids
 
-register_page(__name__, path_template="contributor")
+register_page(__name__, path_template="contributor/<contributor_username>")
 
 # Layout
 def layout(contributor_username=None, **kwargs):
-    return html.Div([
-        html.H1("Contributor Details", style={'textAlign': 'center'}),
-        
-        html.Div([
-            dcc.Input(id="username-input", type="text", placeholder="Enter Wikipedia Username"),
-            html.Button("Search", id="search-button", n_clicks=0, style={'marginLeft': '10px'}),
-        ], style={'textAlign': 'center', 'marginBottom': '20px'}) if contributor_username is None else None,
-        
-        html.Div(id="global-metrics", style={'marginBottom': '20px'}),
-        
-        dcc.Graph(id="activity-timeline"),
-        
-        dcc.Graph(id="edits-by-hour"),
-        
-        html.H3("Top Articles Contributed To"),
-        dash_table.DataTable(id="top-articles-table"),
-        
-        html.Div(id="error-message", style={"color": "red", "textAlign": "center", "marginTop": "10px"})
-    ])
+    if not contributor_username:
+        return html.P("Please enter a username.")
 
-# Callbacks
-@callback(
-    [
-        Output(ids.GLOBAL_MATRICS, "children"),
-        Output(ids.ACTIVITY_TIMELINE, "figure"),
-        Output(ids.EDITS_BY_HOUR, "figure"),
-        Output(ids.TOP_ARTICLES_TABLE, "data"),
-        Output(ids.ERROR_MESSAGE, "children"),
-    ],
-    [
-        Input(ids.SEARCH_BUTTON, "n_clicks"),
-    ],
-    [
-        State(ids.USERNAME_INPUT, "value"),
-    ],
-    prevent_initial_call=True
-)
-def update_contributor_page(n_clicks, input_username):
-    ctx = dash.callback_context
-
-    if(ctx.triggered_id == ids.SEARCH_BUTTON):
-        username = input_username
-    else:
-        username = dash.get_current_app().server.config.get("contributor_username", None)
-
-    if not username:
-        return html.P("Please enter a username."), {}, {}, [], ""
-
-    data = fetch_contributor_data(username)
+    data = fetch_contributor_data(contributor_username)
 
     if data is None or data.empty:
-        return "", {}, {}, [], f"No data found for user '{username}'."
+        return "", {}, {}, [], f"No data found for user '{contributor_username}'."
 
     # Global Stats
     total_edits = len(data)
@@ -81,7 +36,7 @@ def update_contributor_page(n_clicks, input_username):
         x="timestamp",
         y=data.index,
         labels={"y": "Cumulative Edits", "timestamp": "Time"},
-        title=f"Edit Activity Over Time for '{username}'"
+        title=f"Edit Activity Over Time for '{contributor_username}'"
     )
 
     # Edit Activity by Hour
@@ -99,4 +54,20 @@ def update_contributor_page(n_clicks, input_username):
     top_articles.columns = ["Article Name", "Edits"]
     table_data = top_articles.head(10).to_dict("records")
 
-    return metrics, timeline_fig, hour_fig, table_data, ""
+    return html.Div([
+        html.H1("Contributor Details", style={'textAlign': 'center'}),
+        
+        html.Div([
+            dcc.Input(id="username-input", type="text", placeholder="Enter Wikipedia Username"),
+            html.Button("Search", id="search-button", n_clicks=0, style={'marginLeft': '10px'}),
+        ], style={'textAlign': 'center', 'marginBottom': '20px'}) if contributor_username is None else None,
+        
+        html.Div(id=ids.GLOBAL_MATRICS, style={'marginBottom': '20px'}, children=metrics),
+        
+        dcc.Graph(id=ids.ACTIVITY_TIMELINE, figure=timeline_fig),
+        
+        dcc.Graph(id=ids.EDITS_BY_HOUR, figure=hour_fig),
+        
+        html.H3("Top Articles Contributed To"),
+        dash_table.DataTable(id=ids.TOP_ARTICLES_TABLE, data=table_data)
+    ])
