@@ -9,8 +9,15 @@ from src.constants import ids
 
 register_page(__name__, path_template="contributor/<contributor_username>")
 
-# Layout
-def layout(contributor_username=None, **kwargs):
+@callback(
+        Output(ids.CONTRIBUTOR_DETAILS_CONTAINER, "children"),
+        Input("layout-container", "children"),
+        State("url", "pathname"),
+)
+def on_page_load(_, pathname):
+    contributor_username = pathname.split("/")[-1]
+    print(contributor_username)
+
     if not contributor_username:
         return html.P("Please enter a username.")
 
@@ -72,3 +79,20 @@ def layout(contributor_username=None, **kwargs):
         html.H3("Top Articles Contributed To"),
         dash_table.DataTable(id=ids.TOP_ARTICLES_TABLE, data=table_data)
     ])
+
+# Layout
+def layout(contributor_username=None, **kwargs):
+   return html.Div(
+      children=[
+            dcc.Location(id="url", refresh=False),
+            dcc.Loading(
+                id="loading-spinner",
+                type="circle",
+                children=[
+                    html.Div(id=ids.CONTRIBUTOR_DETAILS_CONTAINER)
+                ],
+                style={"marginTop": "100px"}
+            )
+        ],
+        id="layout-container",  
+   )

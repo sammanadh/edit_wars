@@ -1,4 +1,4 @@
-from dash import register_page, html, dcc
+from dash import register_page, html, dcc, callback, Output, Input, State
 import pandas as pd
 import plotly.express as px
 import dash_bootstrap_components as dbc
@@ -7,6 +7,8 @@ from src.helpers import fetch_all_revisions, format_timestamp_readable
 import io
 import base64
 from datetime import datetime
+import time
+from src.constants import ids
 
 register_page(__name__, path_template="/details/<article_name>")
 
@@ -20,7 +22,14 @@ def add_activity_timeline(df):
     df["day"] = df["timestamp"].dt.day
 
 
-def layout(article_name=None, **kwargs):
+@callback(
+    Output(ids.ARTICLE_DETAILS_CONTAINER, "children"),
+    Input("layout-container", "children"),
+    State("url", "pathname"),
+    on_page_load=False
+)
+def on_page_load(_, pathname):
+    article_name = pathname.split("/")[-1]
     df_rev = fetch_all_revisions(article_name)
     if(df_rev is None or df_rev.empty):
         return html.Div([
@@ -111,8 +120,7 @@ def layout(article_name=None, **kwargs):
         ]),
         html.Div([
             html.H3("Edit Forecast"),
-            # dcc.Graph(figure=forecast_fig)
-            html.Img(src=f"data:image/png;base64,{forecast_fig_base64}"),  # Render Image in Dash
+            html.Img(src=f"data:image/png;base64,{forecast_fig_base64}"), 
         ], style={"marginTop": "20px"}),
         html.Div([
             html.H3("Top Contributors"),
@@ -128,7 +136,21 @@ def layout(article_name=None, **kwargs):
         ], style={"marginTop": "20px"}),
     ])
 
-    return html.Div()
+def layout(article_name=None, **kwargs):
+    return html.Div(
+        children=[
+            dcc.Location(id="url", refresh=False),
+            dcc.Loading(
+                id="loading-spinner",
+                type="circle",
+                children=[
+                    html.Div(id=ids.ARTICLE_DETAILS_CONTAINER)
+                ],
+                style={"marginTop": "100px"}
+            )
+        ],
+        id="layout-container",    
+    )
 
 def fig_to_base64(fig):
     buf = io.BytesIO()

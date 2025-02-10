@@ -1,4 +1,4 @@
-from dash import html, Input, Output, State, page_container, register_page, callback, ALL, ctx
+from dash import html, Input, Output, State, page_container, register_page, callback, ALL, ctx, dcc
 import pandas as pd
 import dash_bootstrap_components as dbc 
 from src.constants import ids
@@ -68,7 +68,14 @@ layout = html.Div([
         style={"width":"100vw", "text-align": "center"}
     ),
     search_bar.render(),
-    html.Div(id=ids.BADGE_CONTAINER),
-    html.Div(id=ids.ARTICLE_MATRICS_CONTAINER),
-    html.Div(id=ids.COMPARISON_GRAPH_CONTAINER),
+    # Wrapping components inside dcc.Loading for a spinner effect
+    dcc.Loading(
+        id="loading-spinner",
+        type="circle",  # "default", "circle", or "dot"
+        children=[
+            html.Div(id=ids.BADGE_CONTAINER),
+            html.Div(id=ids.ARTICLE_MATRICS_CONTAINER),
+            html.Div(id=ids.COMPARISON_GRAPH_CONTAINER),
+        ]
+    )
 ])
