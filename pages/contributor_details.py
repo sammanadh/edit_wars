@@ -30,12 +30,13 @@ def layout(contributor_username=None, **kwargs):
         ], className="mb-3"),
     ])
 
+    daily_count = data.groupby(data["timestamp"].dt.date).size().reset_index(name="count")
     # Activity Timeline
     timeline_fig = px.line(
-        data,
+        daily_count,
         x="timestamp",
-        y=data.index,
-        labels={"y": "Cumulative Edits", "timestamp": "Time"},
+        y="count",
+        labels={"index": "Cumulative Edits", "timestamp": "Time"},
         title=f"Edit Activity Over Time for '{contributor_username}'"
     )
 

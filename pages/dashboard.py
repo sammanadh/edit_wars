@@ -48,12 +48,15 @@ def update_matrics(_a, _b,search_value):
         articles_data = articles_data[articles_data["Article Name"] != deleted_article]
 
 
-    # Update table, metrics, and graphs
-    return (
-        article_matrics.render(articles_data),
-        comparison_graph.render(articles_data),
-        article_name_badges.render(articles_data)
-    )
+    if articles_data.shape[0] == 0:
+        return None
+    else:
+        # Update table, metrics, and graphs
+        return (
+            article_matrics.render(articles_data),
+            comparison_graph.render(articles_data),
+            article_name_badges.render(articles_data)
+        )
 
 
 layout = html.Div([
