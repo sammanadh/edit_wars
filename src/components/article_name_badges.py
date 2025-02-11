@@ -15,4 +15,4 @@ def render(articles_data):
             )
         )
 
-    return html.Div(articleButtons, style={"display":"flex", "gap": "10px", "justifyContent": "center"})
+    return html.Div(articleButtons, style={"display":"flex", "gap": "10px", "justifyContent": "center", "marginBottom": "10px"})

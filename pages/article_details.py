@@ -42,14 +42,12 @@ def on_page_load(_, pathname):
     total_edits = df_rev.shape[0]
 
     # For matics table
-    matrics_table = dbc.Table(
-        [
-            html.Tr([html.Th("Matrics"), html.Th("Value")]),
-            html.Tr([html.Td("Total Edits"), html.Td(total_edits)]),
-            html.Tr([html.Td("Number of Contributors"), html.Td(total_contributors)]),
-            html.Tr([html.Td("Most Recent Edit"), html.Td(format_timestamp_readable(latest_rev_timestamp))]),
-        ]
-    )
+    matrics_table = dbc.Table([
+        html.Tr([html.Th("Matrics"), html.Th("Value")]),
+        html.Tr([html.Td("Total Edits"), html.Td(total_edits)]),
+        html.Tr([html.Td("Number of Contributors"), html.Td(total_contributors)]),
+        html.Tr([html.Td("Most Recent Edit"), html.Td(format_timestamp_readable(latest_rev_timestamp))]),
+    ])
 
     df_rev['timestamp'] = pd.to_datetime(df_rev['timestamp'], errors='coerce')
     # dataframe for making future prediction
@@ -87,7 +85,7 @@ def on_page_load(_, pathname):
 
     # set the contributor names as links
     df_top_contributors["Contributors"] = df_top_contributors["Contributors"].apply(
-        lambda name: dcc.Link(name, href=f"/contributor/{name}", refresh=True),
+        lambda name: dcc.Link(name, href=f"/contributor/{name.replace(" ", "_")}", refresh=True),
     )
 
     contributors_table = dbc.Table.from_dataframe(
@@ -113,27 +111,71 @@ def on_page_load(_, pathname):
     )
 
     return html.Div([
-        html.H1(f"{article_name}"),
-        html.Div([
-            html.H3("Matrics"),
-            matrics_table
-        ]),
-        html.Div([
-            html.H3("Edit Forecast"),
-            html.Img(src=f"data:image/png;base64,{forecast_fig_base64}"), 
-        ], style={"marginTop": "20px"}),
-        html.Div([
-            html.H3("Top Contributors"),
-            contributors_table,
-        ], style={"marginTop": "20px"}),
-        html.Div([
-            html.H3("Edit Timeline"),
-            dcc.Graph(figure = timeline_fig)
-        ], style={"marginTop": "20px"}),
-        html.Div([
-            html.H3("Hourly Edit Count"),
-            dcc.Graph(figure = hour_fig)
-        ], style={"marginTop": "20px"}),
+        html.Div(
+            children=[
+                html.H1(f"{article_name}"),
+            ],
+            style={"width":"100%", "text-align": "center"}
+        ),
+        html.Div(
+            children = [
+                html.Div(
+                    children = [
+                        html.H3("Matrics"),
+                        html.Div(
+                            children = [
+                                matrics_table
+                            ],
+                            style = {
+                                "padding": "20px",
+                                "borderRadius": "10px",
+                                "background": "#ffffff",
+                                "width": "80%",
+                                "margin": "auto",
+                                "color": "black"
+                            },
+                        ),
+                    ],
+                ),
+                html.Div([
+                    html.H3("Edit Forecast"),
+                    html.Div(
+                        children=[
+                            html.Img(src=f"data:image/png;base64,{forecast_fig_base64}", style={"margin": "auto"}), 
+                        ],
+                        style={"width": "100%", "display": "flex", "flexDirection": "column", "alignItems": "center"}
+                    )
+                ], style={"marginTop": "20px"}),
+                html.Div([
+                    html.H3("Top Contributors"),
+                    html.Div(
+                        children=[
+                            contributors_table,
+                        ],
+                        style={"width": "100%", "display": "flex", "flexDirection": "column", "alignItems": "center"}
+                    )
+                ], style={"marginTop": "20px"}),
+                html.Div([
+                    html.H3("Edit Timeline"),
+                    html.Div(
+                        children=[
+                            dcc.Graph(figure = timeline_fig)
+                        ],
+                        style={"width": "100%", "display": "flex", "flexDirection": "column", "alignItems": "center"}
+                    )
+                ], style={"marginTop": "20px"}),
+                html.Div([
+                    html.H3("Hourly Edit Count"),
+                    html.Div(
+                        children=[
+                            dcc.Graph(figure = hour_fig)
+                        ],
+                        style={"width": "100%", "display": "flex", "flexDirection": "column", "alignItems": "center"}
+                    )
+                ], style={"marginTop": "20px"}),
+            ],
+            style = {"color": "#fe6f1f"}
+        )
     ])
 
 def layout(article_name=None, **kwargs):
@@ -149,7 +191,8 @@ def layout(article_name=None, **kwargs):
                 style={"marginTop": "100px"}
             )
         ],
-        id="layout-container",    
+        id="layout-container",
+        style={ "width" : "80vw", "margin": "auto" }  
     )
 
 def fig_to_base64(fig):

@@ -43,8 +43,7 @@ def on_page_load(_, pathname):
         daily_count,
         x="timestamp",
         y="count",
-        labels={"index": "Cumulative Edits", "timestamp": "Time"},
-        title=f"Edit Activity Over Time for '{contributor_username}'"
+        labels={"index": "Cumulative Edits", "timestamp": "Time"}
     )
 
     # Edit Activity by Hour
@@ -65,25 +64,53 @@ def on_page_load(_, pathname):
     return html.Div([
         html.H1("Contributor Details", style={'textAlign': 'center'}),
         
-        html.Div([
-            dcc.Input(id="username-input", type="text", placeholder="Enter Wikipedia Username"),
-            html.Button("Search", id="search-button", n_clicks=0, style={'marginLeft': '10px'}),
-        ], style={'textAlign': 'center', 'marginBottom': '20px'}) if contributor_username is None else None,
-        
-        html.Div(id=ids.GLOBAL_MATRICS, style={'marginBottom': '20px'}, children=metrics),
-        
-        dcc.Graph(id=ids.ACTIVITY_TIMELINE, figure=timeline_fig),
-        
-        dcc.Graph(id=ids.EDITS_BY_HOUR, figure=hour_fig),
-        
-        html.H3("Top Articles Contributed To"),
-        dash_table.DataTable(id=ids.TOP_ARTICLES_TABLE, data=table_data)
+        html.Div(
+            children = [
+                html.Div([
+                    html.H3("Aggregated Matrics"),
+                    html.Div(
+                        children=[
+                            metrics,
+                        ],
+                        style={"width": "100%"}
+                    )
+                ]),
+                html.Div([
+                    html.H3(f"Edit Activity Over Time for '{contributor_username}'"),
+                    html.Div(
+                        children=[
+                            dcc.Graph(id=ids.ACTIVITY_TIMELINE, figure=timeline_fig),
+                        ],
+                        style={"width": "100%"}
+                    )
+                ]),
+                html.Div([
+                    html.H3("Edit Activity by Hour of the Day"),
+                    html.Div(
+                        children=[
+                            dcc.Graph(id=ids.EDITS_BY_HOUR, figure=hour_fig),
+                        ],
+                        style={"width": "100%"}
+                    )
+                ]),
+                html.Div([
+                    html.H3("Top Articles Contributed To"),
+                    html.Div(
+                        children=[
+                            dash_table.DataTable(id=ids.TOP_ARTICLES_TABLE, data=table_data)
+                        ],
+                        style={"width": "100%", "color": "black"}
+                    )
+                ]),
+            ],
+            style={"display": "flex", "flexDirection": "column", "gap": "20px", "marginTop": "20px", "color": "#fe6f1f"}
+        )
     ])
 
 # Layout
 def layout(contributor_username=None, **kwargs):
    return html.Div(
-      children=[
+        children=[
             dcc.Location(id="url", refresh=False),
             dcc.Loading(
                 id="loading-spinner",
@@ -94,5 +121,6 @@ def layout(contributor_username=None, **kwargs):
                 style={"marginTop": "100px"}
             )
         ],
-        id="layout-container",  
+        id="layout-container",
+        style={ "width" : "80vw", "margin": "auto" }  
    )

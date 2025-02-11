@@ -7,5 +7,5 @@ def create_layout():
         children=[
             page_container
         ],
-        style={"width": "95%", "margin": "auto"}
+        style={"width": "95%", "margin": "auto", "backgroundColor": "#0f111e", "color": "#be22e5", "width": "100vw", "minHeight": "100vh"}
     )

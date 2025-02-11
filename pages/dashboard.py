@@ -59,23 +59,31 @@ def update_matrics(_a, _b,search_value):
         )
 
 
-layout = html.Div([
-    html.Div(
-        id=ids.MAIN_HEADER,
-        children=[
-            html.H1(["Wikipedia Wars"])
-        ],
-        style={"width":"100vw", "text-align": "center"}
-    ),
-    search_bar.render(),
-    # Wrapping components inside dcc.Loading for a spinner effect
-    dcc.Loading(
-        id="loading-spinner",
-        type="circle",  # "default", "circle", or "dot"
-        children=[
-            html.Div(id=ids.BADGE_CONTAINER),
-            html.Div(id=ids.ARTICLE_MATRICS_CONTAINER),
-            html.Div(id=ids.COMPARISON_GRAPH_CONTAINER),
-        ]
-    )
-])
+layout = html.Div(
+    children = [
+        html.Div(
+            id=ids.MAIN_HEADER,
+            children=[
+                html.H1(["Wikipedia Wars"])
+            ],
+            style={"width":"100%", "text-align": "center"}
+        ),
+        search_bar.render(),
+        # Wrapping components inside dcc.Loading for a spinner effect
+        dcc.Loading(
+            id="loading-spinner",
+            type="circle",  # "default", "circle", or "dot"
+            children=[
+                html.Div(id=ids.BADGE_CONTAINER),
+                html.Div(
+                    children=[
+                        html.Div(id=ids.ARTICLE_MATRICS_CONTAINER),
+                        html.Div(id=ids.COMPARISON_GRAPH_CONTAINER),
+                    ],
+                    style={"display": "flex", "justifyContent": "space-around", "alignItems": "flex-start", "gap": "10px"}
+                )
+            ]
+        )
+    ],
+    style={ "width" : "80vw", "margin": "auto" }
+)
