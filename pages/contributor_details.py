@@ -43,7 +43,7 @@ def on_page_load(_, pathname):
         daily_count,
         x="timestamp",
         y="count",
-        labels={"index": "Cumulative Edits", "timestamp": "Time"}
+        labels={"count": "Cumulative Edits", "timestamp": "Time"}
     )
 
     # Edit Activity by Hour

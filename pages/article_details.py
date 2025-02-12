@@ -92,14 +92,15 @@ def on_page_load(_, pathname):
         df_top_contributors
     )
 
+    daily_count = df_rev.groupby(df_rev["timestamp"].dt.date).size().reset_index(name="count")
+
     # Adds hour and day column for edit timeline
     add_activity_timeline(df_rev)
     timeline_fig = px.line(
-        df_rev,
+        daily_count,
         x = "timestamp",
-        y = df_rev.index,
-        labels = { "index": "Total Edits", "timestamp": "Time" },
-        title = "Edit activity Over Time"
+        y = "count",
+        labels = { "count": "Total Edits", "timestamp": "Time" },
     )
 
     hour_fig = px.histogram(
@@ -107,7 +108,6 @@ def on_page_load(_, pathname):
         x = "hour",
         nbins = 24,
         labels = { "hour": "Hour of the Day", "count": "Number of Edits" },
-        title = "Edit Activity By Hour of the Day"
     )
 
     return html.Div([
@@ -156,7 +156,7 @@ def on_page_load(_, pathname):
                     )
                 ], style={"marginTop": "20px"}),
                 html.Div([
-                    html.H3("Edit Timeline"),
+                    html.H3("Edit activity over time"),
                     html.Div(
                         children=[
                             dcc.Graph(figure = timeline_fig)
@@ -165,7 +165,7 @@ def on_page_load(_, pathname):
                     )
                 ], style={"marginTop": "20px"}),
                 html.Div([
-                    html.H3("Hourly Edit Count"),
+                    html.H3("Edit Activity By Hour of the Day"),
                     html.Div(
                         children=[
                             dcc.Graph(figure = hour_fig)
