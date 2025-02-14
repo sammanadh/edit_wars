@@ -38,9 +38,8 @@ def update_matrics(_a, _b,search_value):
                 ""
             )
 
-        # # Add to history (up to 3 articles)
         if len(articles_data) == 3:
-            articles_data = articles_data.iloc[1:]  # Remove the oldest article
+            articles_data = articles_data.iloc[1:]
         articles_data = pd.concat([articles_data, pd.DataFrame([searched_article_data])], ignore_index=True)
 
     elif isinstance(ctx.triggered_id, dict) and ctx.triggered_id.get("type") == ids.REMOVE_BUTTON:
@@ -51,7 +50,6 @@ def update_matrics(_a, _b,search_value):
     if articles_data.shape[0] == 0:
         return None
     else:
-        # Update table, metrics, and graphs
         return (
             article_matrics.render(articles_data),
             comparison_graph.render(articles_data),
@@ -69,10 +67,9 @@ layout = html.Div(
             style={"width":"100%", "text-align": "center"}
         ),
         search_bar.render(),
-        # Wrapping components inside dcc.Loading for a spinner effect
         dcc.Loading(
             id="loading-spinner",
-            type="circle",  # "default", "circle", or "dot"
+            type="circle",
             children=[
                 html.Div(id=ids.BADGE_CONTAINER),
                 html.Div(

@@ -26,13 +26,11 @@ def fetch_contributor_data(username):
                 break
             contribs.extend(contribs)
 
-            # Handle pagination
             if "continue" in response:
                 params["uccontinue"] = response["continue"]["uccontinue"]
             else:
                 break
 
-        # Convert to DataFrame
         if not contribs:
             return None
 
@@ -56,7 +54,6 @@ def fetch_all_revisions(article_name):
             "rvlimit": "max"
         }
 
-        # Pagination loop to collect all revisions
         all_revisions = []
         while True:
             response = requests.get(url, params = params)
@@ -69,7 +66,6 @@ def fetch_all_revisions(article_name):
 
             all_revisions.extend(page["revisions"])
 
-            # Handle pagination
             if "continue" in data:
                 params["rvcontinue"] = data["continue"]["rvcontinue"]
             else:
@@ -83,7 +79,6 @@ def fetch_all_revisions(article_name):
         return None
 
 def get_article_stats(article_name):
-    # revisions
     revisions_df = fetch_all_revisions(article_name)
     revisions_df["timestamp"] = pd.to_datetime(revisions_df["timestamp"])
 
@@ -99,7 +94,5 @@ def get_article_stats(article_name):
     }
 
 def format_timestamp_readable(iso_timestamp):
-    # Parse the ISO timestamp
     dt = datetime.fromisoformat(iso_timestamp.replace("Z", "+00:00"))
-    # Format it into a user-friendly format
     return dt.strftime("%B %d, %Y, %I:%M %p")

@@ -61,29 +61,24 @@ def on_page_load(_, pathname):
     model = Prophet()
     model.fit(df_forecast)
 
-    # todays date
     today = datetime.today()
 
-    # dataframe for future dates
     next_thirty_days = pd.date_range(start=today, periods=12, freq='M')
     future = pd.DataFrame({'ds': next_thirty_days})
     future_forecast = model.predict(future)
 
-    # Plot to show the forecast
     forecast_fig = model.plot(future_forecast)
     axes = forecast_fig.gca()
-    axes.set_xlim([today, future_forecast['ds'].max()]) # so that the plot only shows data from today onwards
+    axes.set_xlim([today, future_forecast['ds'].max()]) 
     axes.set_xlabel("Date")
     axes.set_ylabel("Number of Edits")
     
     forecast_fig_base64 = fig_to_base64(forecast_fig)
 
-    #  For top contributors table
     top_contributors_arr = get_top_10_contributors(df_rev)
     df_top_contributors = top_contributors_arr.reset_index()
     df_top_contributors.columns = ["Contributors", "No of Edits"]
 
-    # set the contributor names as links
     df_top_contributors["Contributors"] = df_top_contributors["Contributors"].apply(
         lambda name: dcc.Link(name, href=f"/contributor/{name.replace(" ", "_")}", refresh=True),
     )
@@ -94,7 +89,6 @@ def on_page_load(_, pathname):
 
     daily_count = df_rev.groupby(df_rev["timestamp"].dt.date).size().reset_index(name="count")
 
-    # Adds hour and day column for edit timeline
     add_activity_timeline(df_rev)
     timeline_fig = px.line(
         daily_count,
@@ -198,5 +192,4 @@ def layout(article_name=None, **kwargs):
 def fig_to_base64(fig):
     buf = io.BytesIO()
     fig.savefig(buf, format="png", bbox_inches="tight")
-    # buf.seek()
     return base64.b64encode(buf.getvalue()).decode()

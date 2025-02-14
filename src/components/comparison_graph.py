@@ -12,16 +12,16 @@ def render(articles_data) :
                     ],
                     "layout": {
                         "title": "Graphical Comparison of Searched Articles",
-                        "paper_bgcolor": "rgba(0,0,0,0)",  # Makes the graph's outer background transparent
-                        "plot_bgcolor": "rgba(0,0,0,0)",   # Makes the inner plot background transparent
+                        "paper_bgcolor": "rgba(0,0,0,0)",
+                        "plot_bgcolor": "rgba(0,0,0,0)",
                     },
                 },
             ),
         ],
         style={
-            "padding": "20px",  # Padding inside the card
-            "borderRadius": "10px",  # Rounded corners
+            "padding": "20px",
+            "borderRadius": "10px",
             "backgroundColor": "#ffffff",
-            "margin": "auto",  # Centers the card
+            "margin": "auto",
         }
     )

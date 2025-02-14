@@ -11,16 +11,20 @@ def render():
                     dbc.Input(
                         id=ids.SEARCH_INPUT,
                         type="text",
-                        placeholder="Type an article name...",
-                        # style={'width': '100%', 'padding': '10px', 'marginBottom': '20px'}
+                        placeholder="enter article name",
                     ),
                     dbc.Button(
-                        "Search", id=ids.SEARCH_BUTTON
+                        "search", id=ids.SEARCH_BUTTON
                     )
                 ],
-                style={"display": "flex", "flex-direction": "row", "width": "40%", "gap": "2px", "margin": "auto"}
+                style = {
+                    "flex-direction": "row", 
+                    "margin": "auto",
+                    "display": "flex", 
+                    "gap": "2px", 
+                    "width": "40%"
+                }
             ),
-            # html.Button("Search", id="search-button", style={'marginBottom': '20px'}),
-            html.Div(id=ids.SEARCH_ERROR_MESSAGE, style={'color': 'red', 'marginBottom': '20px'})
+            html.Div(id=ids.SEARCH_ERROR_MESSAGE, style={'marginBottom': '20px', 'color': 'red'})
         ]
     )

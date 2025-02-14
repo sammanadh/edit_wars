@@ -38,7 +38,7 @@ def on_page_load(_, pathname):
     ])
 
     daily_count = data.groupby(data["timestamp"].dt.date).size().reset_index(name="count")
-    # Activity Timeline
+
     timeline_fig = px.line(
         daily_count,
         x="timestamp",
@@ -46,7 +46,6 @@ def on_page_load(_, pathname):
         labels={"count": "Cumulative Edits", "timestamp": "Time"}
     )
 
-    # Edit Activity by Hour
     data["hour"] = data["timestamp"].dt.hour
     hour_fig = px.histogram(
         data,
@@ -56,7 +55,6 @@ def on_page_load(_, pathname):
         labels={"hour": "Hour", "count": "Number of Edits"}
     )
 
-    # Top Articles Contributed To
     top_articles = data["title"].value_counts().reset_index()
     top_articles.columns = ["Article Name", "Edits"]
     table_data = top_articles.head(10).to_dict("records")
@@ -107,7 +105,6 @@ def on_page_load(_, pathname):
         )
     ])
 
-# Layout
 def layout(contributor_username=None, **kwargs):
    return html.Div(
         children=[
